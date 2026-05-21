@@ -130,4 +130,9 @@ namespace EvilTwin {
   void eviltwinLoop();
 }
 
+namespace BeaconSpammer {
+  void spammerSetup();
+  void spammerLoop();
+}
+
 #endif // CONFIG_H

@@ -79,6 +79,12 @@ Complete project story, in-depth tutorials, and all the features in [Wiki](https
       <td>Low</td>
       <td>Specialized attack method with limited reliability; effective only under specific conditions. Further tuning is required.</td>
     </tr>
+    <tr>
+      <td><strong>Beacon Spammer</strong></td>
+      <td>Stable</td>
+      <td>High</td>
+      <td>Broadcasts multiple Wi-Fi SSIDs in constant flood or cycle marquee mode, with web portal payload multiplier support.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -117,6 +123,7 @@ nRFBOX is a wireless toolkit designed to explore, analyze, and interact with var
 - **BLE Scanner** - List nearby Wi-Fi networks with extended details
 - **Wi-Fi Deauthentication Attack** - Send deauthentication frames to disrupt client connections
 - **Evil Twin (Captive Portal)** - Spoof a Wi-Fi access point to intercept and capture credentials via a realistic fake login page.
+- **Beacon Spammer** - Flood custom or preset Wi-Fi SSIDs with constant and marquee modes, configurable via a password-protected web interface.
 
 > Explore the nRFBOX's features in detail at the [nRFBOX Wiki](https://github.com/cifertech/nRFBox/wiki/Features)! 
 

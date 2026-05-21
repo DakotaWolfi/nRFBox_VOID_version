@@ -116,6 +116,7 @@ nRFBOX is a wireless toolkit designed to explore, analyze, and interact with var
 - **WiFi Scanner** - Scan for hidden and visible BLE devices
 - **BLE Scanner** - List nearby Wi-Fi networks with extended details
 - **Wi-Fi Deauthentication Attack** - Send deauthentication frames to disrupt client connections
+- **Evil Twin (Captive Portal)** - Spoof a Wi-Fi access point to intercept and capture credentials via a realistic fake login page.
 
 > Explore the nRFBOX's features in detail at the [nRFBOX Wiki](https://github.com/cifertech/nRFBox/wiki/Features)! 
 

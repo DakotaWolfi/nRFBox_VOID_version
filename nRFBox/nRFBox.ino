@@ -13,34 +13,34 @@ Adafruit_NeoPixel pixels(1, 14, NEO_GRB + NEO_KHZ800);
 bool neoPixelActive = false;
 uint8_t oledBrightness = 100;
 
-const int NUM_ITEMS = 13;
+const int NUM_ITEMS = 14;
 const int MAX_ITEM_LENGTH = 20;
 
 const unsigned char* bitmap_icons[NUM_ITEMS] = {
   bitmap_icon_scanner, bitmap_icon_analyzer, bitmap_icon_jammer, bitmap_icon_kill,
   bitmap_icon_ble_jammer, bitmap_icon_spoofer, bitmap_icon_apple, bitmap_icon_ble,
-  bitmap_icon_wifi, bitmap_icon_wifi_jammer, bitmap_icon_about, 
+  bitmap_icon_wifi, bitmap_icon_wifi_jammer, bitmap_icon_eviltwin, bitmap_icon_about, 
   bitmap_icon_setting, bitmap_icon_screensaver
 };
 
 char menu_items[NUM_ITEMS][MAX_ITEM_LENGTH] = {  
   "Scanner", "Analyzer", "WLAN Jammer", "Proto Kill", "BLE Jammer",
   "BLE Spoofer", "Sour Apple", "BLE Scan", "WiFi Scan", 
-  "Deauther", "About", "Setting", "Screen Saver"
+  "Deauther", "Evil Twin", "About", "Setting", "Screen Saver"
 };
 
 void (*menu_functions[NUM_ITEMS])() = {
   Scanner::scannerSetup, Analyzer::analyzerSetup, Jammer::jammerSetup,
   ProtoKill::blackoutSetup, BleJammer::blejammerSetup, Spoofer::spooferSetup,
   SourApple::sourappleSetup, BleScan::blescanSetup, WifiScan::wifiscanSetup, Deauther::deautherSetup,
-  utils, Setting::settingSetup, ScreenSaver::screensaverSetup
+  EvilTwin::eviltwinSetup, utils, Setting::settingSetup, ScreenSaver::screensaverSetup
 };
 
 void (*menu_loop_functions[NUM_ITEMS])() = {
   Scanner::scannerLoop, Analyzer::analyzerLoop, Jammer::jammerLoop,
   ProtoKill::blackoutLoop, BleJammer::blejammerLoop, Spoofer::spooferLoop,
   SourApple::sourappleLoop, BleScan::blescanLoop, WifiScan::wifiscanLoop, Deauther::deautherLoop,
-  nullptr, Setting::settingLoop, ScreenSaver::screensaverLoop
+  EvilTwin::eviltwinLoop, nullptr, Setting::settingLoop, ScreenSaver::screensaverLoop
 };
 
 int item_selected = 0;

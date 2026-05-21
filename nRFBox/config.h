@@ -125,4 +125,9 @@ namespace Deauther {
   void deautherLoop();
 }
 
+namespace EvilTwin {
+  void eviltwinSetup();
+  void eviltwinLoop();
+}
+
 #endif // CONFIG_H

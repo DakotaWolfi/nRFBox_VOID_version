@@ -135,4 +135,7 @@ namespace BeaconSpammer {
   void spammerLoop();
 }
 
+// Educational Phishing Awareness Mode Settings
+// Portal settings are configured dynamically via the OLED menu.
+
 #endif // CONFIG_H

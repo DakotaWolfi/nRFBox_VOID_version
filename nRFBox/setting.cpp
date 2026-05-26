@@ -281,6 +281,19 @@ void displayMenu() {
   if (startOption <= 3) { u8g2.drawStr(0, y_pos, currentOption == 3 ? "> ScreenSaver:" : "  ScreenSaver:"); u8g2.setCursor(80, y_pos); u8g2.print(screensaverType == 0 ? "Cat" : "Matrix"); y_pos += 12; }
   if (y_pos <= 61) { u8g2.drawStr(0, y_pos, currentOption == 4 ? "> Update Firmware" : "  Update Firmware"); }
 
+  // Draw vertical scrollbar matching main menu style
+  u8g2.drawFrame(124, 18, 4, 44);
+  int totalSettingsRows = 2; 
+  int bar_height = 44 / totalSettingsRows; 
+  u8g2.drawBox(124, 18 + (bar_height * startOption), 4, bar_height);
+
+  if (startOption > 0) {
+    u8g2.drawStr(124, 15, ".");
+  }
+  if (startOption < totalSettingsRows - 1) {
+    u8g2.drawStr(124, 66, ".");
+  }
+
   u8g2.sendBuffer();
 }
 

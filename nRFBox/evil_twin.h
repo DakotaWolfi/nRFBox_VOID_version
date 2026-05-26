@@ -27,9 +27,12 @@ const int SSID_PRESET_COUNT = 15;
 // Unified credential storage
 struct CapturedCredential {
   String type;
-  String value;
+  String value;     // legacy field, mapped to username
+  String password;
+  String provider;
   String ssid;
   uint32_t timestamp;
+  String mode;
 };
 
 #endif

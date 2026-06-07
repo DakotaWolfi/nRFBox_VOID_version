@@ -88,19 +88,21 @@ void drawMenu() {
   const int max_display_items = icons_per_row * icons_per_col;
 
   int selected_col = item_selected % icons_per_row;
-  int selected_item_row = item_selected / icons_per_row;
-  int preferred_row = selected_item_row % icons_per_col;
-
-  int start_row = selected_item_row - preferred_row;
-  if (start_row < 0) start_row = 0;
+  int item_abs_row = item_selected / icons_per_row;
   int total_rows = (NUM_ITEMS + icons_per_row - 1) / icons_per_row;
+
+  // Compute scroll offset first, then derive visual row from it
+  int start_row = item_abs_row - 1;
+  if (start_row < 0) start_row = 0;
   if (start_row > total_rows - icons_per_col) start_row = total_rows - icons_per_col;
   if (start_row < 0) start_row = 0;
+
+  // Visual row within the 2-row viewport
+  int selected_row = item_abs_row - start_row;
+  int highlight_x = 13 + selected_col * 40;
+  int highlight_y = 14 + selected_row * 24; 
   int start_item = start_row * icons_per_row;
   int end_item = min(NUM_ITEMS, start_item + max_display_items);
-  int selected_row = selected_item_row - start_row;
-  int highlight_x = 13 + selected_col * 40;
-  int highlight_y = 14 + selected_row * 24;
 
   for (int i = start_item; i < end_item; i++) {
     int idx = i - start_item;
@@ -171,21 +173,32 @@ void setup() {
 void loop() {
   if (current_screen == 0) {
     const int icons_per_row = 3;
+    const int icons_per_col = 2;
+
 
     if (readButton(BTN_PIN_LEFT)) {
-      item_selected = max(0, item_selected - 1);
+      item_selected = (item_selected - 1 + NUM_ITEMS) % NUM_ITEMS;
       drawMenu();
     }
     if (readButton(BTN_PIN_RIGHT)) {
-      item_selected = min(NUM_ITEMS - 1, item_selected + 1);
+      item_selected = (item_selected + 1) % NUM_ITEMS;
       drawMenu();
     }
     if (readButton(BUTTON_UP_PIN)) {
-      item_selected = max(0, item_selected - icons_per_row);
+      if (item_selected >= icons_per_row) {
+        item_selected -= icons_per_row;
+      } else {
+        int total_rows = (NUM_ITEMS + icons_per_row - 1) / icons_per_row;
+        item_selected = item_selected + (total_rows - 1) * icons_per_row;
+      }
       drawMenu();
     }
     if (readButton(BUTTON_DOWN_PIN)) {
-      item_selected = min(NUM_ITEMS - 1, item_selected + icons_per_row);
+      if (item_selected + icons_per_row < NUM_ITEMS) {
+        item_selected += icons_per_row;
+      } else {
+        item_selected = item_selected % icons_per_row;
+      }
       drawMenu();
     }
     if (readButton(BUTTON_SELECT_PIN)) {
@@ -193,25 +206,35 @@ void loop() {
       Serial.print("\n=== Entering: ");
       Serial.print(menu_items[item_selected]);
       Serial.println(" ===");
-      for (int cycle = 0; cycle < 2; cycle++) {
-        for (int i = 0; i < 3; i++) {
-          u8g2.clearBuffer();
-          u8g2.setFont(u8g2_font_6x10_tr);
-          u8g2.drawStr(30, 32, "Loading");
 
-          String dots = "";
-          for (int j = 0; j <= i; j++) {
-            dots += ".";
-            setNeoPixelColour("white");
-          }
-          setNeoPixelColour("0");
+      // Premium progress loading animation (25 FPS update)
+      for (int progress = 0; progress <= 100; progress += 5) {
+        u8g2.clearBuffer();
+        u8g2.setFont(u8g2_font_6x10_tr);
+        int loading_width = u8g2.getUTF8Width("Loading...");
+        u8g2.drawStr((128 - loading_width) / 2, 22, "Loading...");
 
-          u8g2.drawStr(73, 32, dots.c_str());
+        u8g2.setFont(u8g2_font_5x8_tr);
+        int name_width = u8g2.getUTF8Width(menu_items[item_selected]);
+        u8g2.drawStr((128 - name_width) / 2, 34, menu_items[item_selected]);
 
-          u8g2.sendBuffer();
-          delay(200);
+        // Modern thin progress bar
+        u8g2.drawFrame(24, 42, 80, 5);
+        u8g2.drawBox(26, 44, (76 * progress) / 100, 1);
+
+        // Breathe NeoPixel colors (Blue -> Purple -> Cyan)
+        if (progress < 33) {
+          setNeoPixelColour("blue");
+        } else if (progress < 66) {
+          setNeoPixelColour("purple");
+        } else {
+          setNeoPixelColour("cyan");
         }
+
+        u8g2.sendBuffer();
+        delay(40);
       }
+      setNeoPixelColour("null");
       menu_functions[item_selected]();
 
       while (current_screen == 1) {

@@ -360,6 +360,19 @@ void displayMenu() {
     u8g2.drawStr(120, 63, "v");
   }
 
+  // Draw vertical scrollbar matching main menu style
+  u8g2.drawFrame(124, 18, 4, 44);
+  int totalSettingsRows = 2; 
+  int bar_height = 44 / totalSettingsRows; 
+  u8g2.drawBox(124, 18 + (bar_height * startOption), 4, bar_height);
+
+  if (startOption > 0) {
+    u8g2.drawStr(124, 15, ".");
+  }
+  if (startOption < totalSettingsRows - 1) {
+    u8g2.drawStr(124, 66, ".");
+  }
+
   u8g2.sendBuffer();
 }
 

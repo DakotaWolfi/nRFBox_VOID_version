@@ -259,6 +259,18 @@ void drawMenuScreen() {
 
 void spammerLoop() {
   unsigned long currentMillis = millis();
+
+  if (currentMenu == 2) {
+    if (modeIndex == 0) {
+      setNeoPixelColour("red");
+    } else {
+      setNeoPixelColour("purple");
+    }
+  } else if (currentMenu == 3) {
+    setNeoPixelColour("cyan");
+  } else {
+    setNeoPixelColour("blue");
+  }
   
   drawMenuScreen();
   
@@ -287,10 +299,6 @@ void spammerLoop() {
            }
          }
          lastSpamTime = currentMillis;
-         
-         static bool flash = false;
-         setNeoPixelColour(flash ? "red" : "0");
-         flash = !flash;
       }
     } else {
       // CYCLE MARQUEE
@@ -305,10 +313,6 @@ void spammerLoop() {
              buildAndSendBeacon(targetList[marqueeIndex], fixedMac, c);
          }
          lastSpamTime = currentMillis;
-         
-         static bool flash = false;
-         setNeoPixelColour(flash ? "purple" : "0");
-         flash = !flash;
       }
     }
   }

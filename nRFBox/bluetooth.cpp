@@ -67,6 +67,16 @@ namespace BleJammer {
     } 
   }
 
+  void updateLEDStatus() {
+    if (currentMode == BLE_MODULE) {
+      setNeoPixelColour("blue");
+    } else if (currentMode == Bluetooth_MODULE) {
+      setNeoPixelColour("cyan");
+    } else {
+      setNeoPixelColour("0");
+    }
+  }
+
   void jammer(RF24 &radio, const byte* channels, size_t size) {
     const char text[] = "xxxxxxxxxxxxxxxx";
     for (size_t i = 0; i < size; i++) {
@@ -110,6 +120,7 @@ namespace BleJammer {
       modeChangeRequested = false;
       currentMode = static_cast<OperationMode>((currentMode + 1) % 3);
       initializeRadios();
+      updateLEDStatus();
       updateOLED();
     }
   }
@@ -126,6 +137,7 @@ namespace BleJammer {
     attachInterrupt(digitalPinToInterrupt(BUTTON_UP_PIN), handleButtonPress, FALLING);
 
     initializeRadios();
+    updateLEDStatus();
     updateOLED();
   }
 
@@ -377,9 +389,13 @@ void sourappleSetup() {
 
   esp_bd_addr_t null_addr = {0xFE, 0xED, 0xC0, 0xFF, 0xEE, 0x69};
   Advertising->setDeviceAddress(null_addr, BLE_ADDR_TYPE_RANDOM);
+
+  setNeoPixelColour("red");
 }
 
 void sourappleLoop() {
+
+    setNeoPixelColour("red");
 
     esp_bd_addr_t dummy_addr = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     for (int i = 0; i < 6; i++) {

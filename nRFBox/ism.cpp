@@ -299,6 +299,14 @@ namespace ProtoKill {
     }
   }
 
+  void update_LED_Status() {
+    if (current == ACTIVE_MODE) {
+      setNeoPixelColour("red");
+    } else {
+      setNeoPixelColour("0");
+    }
+  }
+
   void update_OLED() {
     u8g2.clearBuffer();
     u8g2.setFont(u8g2_font_5x8_tr);
@@ -384,6 +392,7 @@ namespace ProtoKill {
     attachInterrupt(digitalPinToInterrupt(BUTTON_UP_PIN), handleButton2, FALLING);
 
     initialize_Radios();
+    update_LED_Status();
     update_OLED();
   }
 
@@ -395,6 +404,7 @@ namespace ProtoKill {
     if (current != lastMode) {
       lastMode = current;
       initialize_Radios();
+      update_LED_Status();
       update_OLED();
     }
 

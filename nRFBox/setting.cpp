@@ -321,6 +321,7 @@ void displayMenu() {
   u8g2.setFont(u8g2_font_5x8_tr);
 
   const int visibleOptions = 4;
+  const int valueRightEdge = 118;
   int startOption = currentOption - visibleOptions + 1;
   if (startOption < 0) startOption = 0;
   int maxStartOption = totalOptions - visibleOptions;
@@ -345,7 +346,7 @@ void displayMenu() {
       char valueBuffer[16];
       getOptionValue(option, valueBuffer, sizeof(valueBuffer));
       int valueWidth = u8g2.getUTF8Width(valueBuffer);
-      u8g2.drawStr(126 - valueWidth, y, valueBuffer);
+      u8g2.drawStr(valueRightEdge - valueWidth, y, valueBuffer);
     }
 
     if (selected) {

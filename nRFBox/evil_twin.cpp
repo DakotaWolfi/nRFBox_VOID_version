@@ -835,6 +835,7 @@ void eviltwinSetup() {
 void eviltwinLoop() {
   // Phase 0: Mode selection
   if (!modeSelected) {
+    setNeoPixelColour("purple");
     handleModeInput();
     drawModeMenu();
     return;
@@ -842,6 +843,7 @@ void eviltwinLoop() {
 
   // Phase 0.1: View Logs (Mode 3)
   if (evilTwinMode == 3 && modeSelected) {
+    setNeoPixelColour("cyan");
     handleViewLogsInput();
     drawViewLogsScreen();
     return;
@@ -849,6 +851,7 @@ void eviltwinLoop() {
 
   // Phase 0.5: Portal config for Mode 2
   if (evilTwinMode == 2 && !portalConfigured) {
+    setNeoPixelColour("purple");
     handleMode2ConfigInput();
     drawMode2ConfigMenu();
     return;
@@ -856,6 +859,9 @@ void eviltwinLoop() {
 
   // Phase 1: SSID selection (mode-specific)
   if (!serverActive) {
+    if (evilTwinMode == 1) setNeoPixelColour("white");
+    else setNeoPixelColour("purple");
+
     if (evilTwinMode == 0 || evilTwinMode == 2) {
       // Mode 0 or 2: Preset list, then optional custom keyboard
       if (!presetChosen) {
@@ -884,6 +890,12 @@ void eviltwinLoop() {
   }
 
   // Phase 2: Server active
+  if (captureCount > 0) {
+    setNeoPixelColour("green");
+  } else {
+    setNeoPixelColour("red");
+  }
+
   dnsServer.processNextRequest();
   webServer.handleClient();
   sendDeauth(); // Only sends in Mode 1

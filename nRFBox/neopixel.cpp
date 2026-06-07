@@ -11,34 +11,41 @@ extern Adafruit_NeoPixel pixels;
 void neopixelSetup() {
   EEPROM.begin(512); 
   neoPixelActive = EEPROM.read(0);
-  
- if (neoPixelActive) {
+  neoPixelBrightness = EEPROM.read(4);
+  if (neoPixelBrightness == 0 || neoPixelBrightness > 255) neoPixelBrightness = 100;
+
   pixels.begin();
   pixels.clear();
-  //pixels.show();
-  }
+  pixels.show();
 }
 
 void neopixelLoop();
 
 void setNeoPixelColour(const std::string& colour) {
-  uint32_t colorValue = 0; 
+  uint32_t colorValue = 0;
+  uint8_t brightness = (neoPixelBrightness * 5) / 255;  // Scale 0-255 to 0-5 range
+
+  if (!neoPixelActive && colour != "0" && colour != "null") {
+    return;
+  }
 
   if (colour == "red") {
-    colorValue = pixels.Color(5, 0, 0);
+    colorValue = pixels.Color(brightness, 0, 0);
   } else if (colour == "green") {
-    colorValue = pixels.Color(0, 5, 0);
+    colorValue = pixels.Color(0, brightness, 0);
   } else if (colour == "blue") {
-    colorValue = pixels.Color(0, 0, 5);
+    colorValue = pixels.Color(0, 0, brightness);
   } else if (colour == "yellow") {
-    colorValue = pixels.Color(5, 5, 0);
+    colorValue = pixels.Color(brightness, brightness, 0);
   } else if (colour == "purple") {
-    colorValue = pixels.Color(5, 0, 5);
+    colorValue = pixels.Color(brightness, 0, brightness);
   } else if (colour == "cyan") {
-    colorValue = pixels.Color(0, 5, 5);
+    colorValue = pixels.Color(0, brightness, brightness);
   } else if (colour == "white") {
-    colorValue = pixels.Color(5, 5, 5);
+    colorValue = pixels.Color(brightness, brightness, brightness);
   } else if (colour == "null") {
+    colorValue = pixels.Color(0, 0, 0);
+  } else if (colour == "0") {
     colorValue = pixels.Color(0, 0, 0);
   }
 

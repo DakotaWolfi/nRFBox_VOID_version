@@ -30,6 +30,7 @@ extern Adafruit_NeoPixel pixels;
 
 extern bool neoPixelActive;
 extern uint8_t oledBrightness;
+extern uint8_t neoPixelBrightness;
 extern int bootSequenceSpeed;
 extern int screensaverType;
 

@@ -129,13 +129,50 @@ namespace Setting {
 #define EEPROM_ADDRESS_BRIGHTNESS 1
 #define EEPROM_ADDRESS_BOOT_SPEED 2
 #define EEPROM_ADDRESS_SCREENSAVER 3
+#define EEPROM_ADDRESS_NEOPIXEL_BRIGHTNESS 4
 
 int currentOption = 0;
-int totalOptions = 5; 
+int totalOptions = 6; 
 
 bool buttonUpPressed = false;
 bool buttonDownPressed = false;
 bool buttonSelectPressed = false;
+
+const char* settingLabels[] = {
+  "NeoPixel",
+  "Neo Bright",
+  "OLED Bright",
+  "Boot Speed",
+  "ScreenSaver",
+  "Update FW"
+};
+
+void getOptionValue(int option, char* buffer, size_t bufferSize) {
+  switch (option) {
+    case 0:
+      snprintf(buffer, bufferSize, "%s", neoPixelActive ? "Enabled" : "Disabled");
+      break;
+    case 1: {
+      uint8_t neoPercent = map(neoPixelBrightness, 0, 255, 0, 100);
+      snprintf(buffer, bufferSize, "%u%%", neoPercent);
+      break;
+    }
+    case 2: {
+      uint8_t brightnessPercent = map(oledBrightness, 0, 255, 0, 100);
+      snprintf(buffer, bufferSize, "%u%%", brightnessPercent);
+      break;
+    }
+    case 3:
+      snprintf(buffer, bufferSize, "%s", bootSequenceSpeed == 0 ? "Quick" : (bootSequenceSpeed == 1 ? "Normal" : "Long"));
+      break;
+    case 4:
+      snprintf(buffer, bufferSize, "%s", screensaverType == 0 ? "Cat" : "Matrix");
+      break;
+    default:
+      buffer[0] = '\0';
+      break;
+  }
+}
 
 void updateFirmware() {
   u8g2.clearBuffer();
@@ -203,6 +240,19 @@ void toggleOption(int option) {
     Serial.println(neoPixelActive ? "Enabled" : "Disabled");
 
   } else if (option == 1) { 
+    uint8_t brightnessPercent = map(neoPixelBrightness, 0, 255, 0, 100); 
+    brightnessPercent += 10; 
+    if (brightnessPercent > 100) brightnessPercent = 10; 
+    neoPixelBrightness = map(brightnessPercent, 0, 100, 0, 255); 
+
+    EEPROM.write(EEPROM_ADDRESS_NEOPIXEL_BRIGHTNESS, neoPixelBrightness);
+    EEPROM.commit();
+
+    Serial.print("NeoPixel Brightness: ");
+    Serial.print(brightnessPercent);
+    Serial.println("%");
+
+  } else if (option == 2) { 
     uint8_t brightnessPercent = map(oledBrightness, 0, 255, 0, 100); 
     brightnessPercent += 10; 
     if (brightnessPercent > 100) brightnessPercent = 10; 
@@ -212,23 +262,23 @@ void toggleOption(int option) {
     EEPROM.write(EEPROM_ADDRESS_BRIGHTNESS, oledBrightness);
     EEPROM.commit();
 
-    Serial.print("Brightness set to: ");
+    Serial.print("OLED Brightness: ");
     Serial.print(brightnessPercent);
     Serial.println("%");
 
-  } else if (option == 2) {
+  } else if (option == 3) {
     bootSequenceSpeed = (bootSequenceSpeed + 1) % 3;
     EEPROM.write(EEPROM_ADDRESS_BOOT_SPEED, bootSequenceSpeed);
     EEPROM.commit();
-    Serial.print("Boot Speed set to: ");
+    Serial.print("Boot Speed : ");
     Serial.println(bootSequenceSpeed == 0 ? "Quick" : (bootSequenceSpeed == 1 ? "Normal" : "Long"));
-  } else if (option == 3) {
+  } else if (option == 4) {
     screensaverType = (screensaverType + 1) % 2;
     EEPROM.write(EEPROM_ADDRESS_SCREENSAVER, screensaverType);
     EEPROM.commit();
-    Serial.print("Screen Saver set to: ");
+    Serial.print("Screen Saver: ");
     Serial.println(screensaverType == 0 ? "Cat" : "Matrix");
-  } else if (option == 4) {
+  } else if (option == 5) {
     updateFirmware();
   }
 }
@@ -269,17 +319,46 @@ void displayMenu() {
   u8g2.drawStr(0, 10, "Settings:");
 
   u8g2.setFont(u8g2_font_5x8_tr);
-  
-  // Create a scroll offset if we are on option 4
-  int startOption = 0;
-  if (currentOption >= 4) startOption = 1;
 
-  int y_pos = 25;
-  if (startOption <= 0) { u8g2.drawStr(0, y_pos, currentOption == 0 ? "> NeoPixel: " : "  NeoPixel: "); u8g2.setCursor(80, y_pos); u8g2.print(neoPixelActive ? "Enabled" : "Disabled"); y_pos += 12; }
-  if (startOption <= 1) { u8g2.drawStr(0, y_pos, currentOption == 1 ? "> Brightness: " : "  Brightness: "); u8g2.setCursor(80, y_pos); uint8_t brightnessPercent = map(oledBrightness, 0, 255, 0, 100); u8g2.print(brightnessPercent); u8g2.print("%"); y_pos += 12; }
-  if (startOption <= 2) { u8g2.drawStr(0, y_pos, currentOption == 2 ? "> Boot Speed: " : "  Boot Speed: "); u8g2.setCursor(80, y_pos); u8g2.print(bootSequenceSpeed == 0 ? "Quick" : (bootSequenceSpeed == 1 ? "Normal" : "Long")); y_pos += 12; }
-  if (startOption <= 3) { u8g2.drawStr(0, y_pos, currentOption == 3 ? "> ScreenSaver:" : "  ScreenSaver:"); u8g2.setCursor(80, y_pos); u8g2.print(screensaverType == 0 ? "Cat" : "Matrix"); y_pos += 12; }
-  if (y_pos <= 61) { u8g2.drawStr(0, y_pos, currentOption == 4 ? "> Update Firmware" : "  Update Firmware"); }
+  const int visibleOptions = 4;
+  int startOption = currentOption - visibleOptions + 1;
+  if (startOption < 0) startOption = 0;
+  int maxStartOption = totalOptions - visibleOptions;
+  if (maxStartOption < 0) maxStartOption = 0;
+  if (startOption > maxStartOption) startOption = maxStartOption;
+
+  for (int row = 0; row < visibleOptions; row++) {
+    int option = startOption + row;
+    if (option >= totalOptions) break;
+
+    int y = 24 + (row * 10);
+    bool selected = (option == currentOption);
+
+    if (selected) {
+      u8g2.drawBox(0, y - 8, 128, 10);
+      u8g2.setDrawColor(0);
+    }
+
+    u8g2.drawStr(2, y, settingLabels[option]);
+
+    if (option != 5) {
+      char valueBuffer[16];
+      getOptionValue(option, valueBuffer, sizeof(valueBuffer));
+      int valueWidth = u8g2.getUTF8Width(valueBuffer);
+      u8g2.drawStr(126 - valueWidth, y, valueBuffer);
+    }
+
+    if (selected) {
+      u8g2.setDrawColor(1);
+    }
+  }
+
+  if (startOption > 0) {
+    u8g2.drawStr(120, 10, "^");
+  }
+  if (startOption + visibleOptions < totalOptions) {
+    u8g2.drawStr(120, 63, "v");
+  }
 
   u8g2.sendBuffer();
 }
@@ -290,12 +369,14 @@ void settingSetup() {
   EEPROM.begin(512);
 
   neoPixelActive = EEPROM.read(EEPROM_ADDRESS_NEOPIXEL);
+  neoPixelBrightness = EEPROM.read(EEPROM_ADDRESS_NEOPIXEL_BRIGHTNESS);
   oledBrightness = EEPROM.read(EEPROM_ADDRESS_BRIGHTNESS);
   bootSequenceSpeed = EEPROM.read(EEPROM_ADDRESS_BOOT_SPEED);
   screensaverType = EEPROM.read(EEPROM_ADDRESS_SCREENSAVER);
   
   if (bootSequenceSpeed > 2) bootSequenceSpeed = 1; // Default to Normal
   if (screensaverType > 1) screensaverType = 0; // Default to Cat
+  if (neoPixelBrightness == 0 || neoPixelBrightness > 255) neoPixelBrightness = 100;
   
   if (oledBrightness > 255) oledBrightness = 128; 
   if (oledBrightness == 0) oledBrightness = 25; 
